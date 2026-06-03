@@ -1,21 +1,15 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
-import {onMounted, ref} from 'vue'
-import Popup from "./components/Popup.vue";
-import { useTemplateRef } from "vue";
-
+import {ref, provide, useTemplateRef, onMounted} from 'vue'
+import Popup from './components/Popup.vue'
 const router = useRouter()
 const route = useRoute()
-const popup = useTemplateRef("popup");
-const choice = await popup.value.wait(
-    "Do You really want me?",
-    { close: "CLOSE ME", stay: "STAY WITH ME" },
-    "POPUP WINDOW"
-);
 
+const popup = useTemplateRef("popup")
 provide("popupService", async (info, options, title) => {
-    return await popup.value.wait(info, options, title);
+    return await popup.value.wait(info, options, title)
 })
+
 
 
 const isLogged = ref(localStorage.getItem('isLogged') === 'true')

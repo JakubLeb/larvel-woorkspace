@@ -1,44 +1,54 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 const routes = [
-    { name: "home",
+    {
+        name: "home",
         path: "/",
         component: () => import("@/pages/Home.vue"),
     },
-    { name: "register",
+    {
+        name: "register",
         path: "/register",
+        meta: { guestOnly: true },
         component: () => import("@/pages/Register.vue"),
     },
-    { name: "login",
+    {
+        name: "login",
         path: "/login",
+        meta: { guestOnly: true },
         component: () => import("@/pages/Login.vue"),
     },
-    { name: "dashboard",
+    {
+        name: "dashboard",
         path: "/dashboard",
         meta: { requiresAuth: true },
         component: () => import("@/pages/Dashboard.vue"),
-    },
-    { name: "logout",
-        path: "/logout",
-        component: () => import("@/pages/Logout.vue"),
     },
     {
         path: "/:pathMatch(.*)*",
         component: () => import("@/pages/404.vue"),
     }
 ]
+
 const router = createRouter({
     history: createWebHistory(),
     routes,
 })
+
 router.beforeEach(async (to, from) => {
     if (to.meta.requiresAuth && !isLogged()) {
         return {
             name: 'login',
-            query: { redirect: to.fullPath }, // save the location we were
+            query: { redirect: to.fullPath },
         }
     }
+    if (to.meta.guestOnly && isLogged()) {
+        return { name: 'dashboard' }
+    }
 })
+
 function isLogged() {
     return localStorage.getItem('isLogged') === 'true'
 }
+
 export default router

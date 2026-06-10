@@ -1,18 +1,14 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-const user = ref(null)
-onMounted(async () => {
-    try {
-        const response = await axios.get('/api/user')
-        user.value = response?.data?.name;
-    } catch (e) {
-        console.log('an error')
-    }
-})
+import { useAuth } from '../composables/features/auth.js';
+const { user } = useAuth()
+
 </script>
 
 <template>
-    To jest Dashboard
+    <div>Dashboard
+        <div v-if="user"> Ahoj {{ user.name }}!</div>
+    </div>
+
 </template>
 
 <style scoped>

@@ -2,6 +2,9 @@
 import FormInput from '../components/FormInput.vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
+import { useAuth } from '../composables/features/auth.js'
+const { register } = useAuth()
+
 
 const router = useRouter()
 const errors = ref(null)
@@ -11,17 +14,11 @@ const form = {
     password: null,
     password_confirmation: null,
 }
-
 const submit = async () => {
-errors.value=null
-    try {
-        const response = await axios.post('/api/register', form);
-        router.push({ path: '/login' });
-    } catch (e) {
-        if (e.response.status == 422) {
-            errors.value = e.response.data.errors;
-        } else { console.log('an error') }
-    }
+    await register(form)
+    router.push({
+        name: 'dashboard',
+    })
 }
 </script>
 

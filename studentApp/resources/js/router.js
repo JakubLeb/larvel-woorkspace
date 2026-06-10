@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
 const routes = [
     {
         name: "home",
@@ -48,7 +47,7 @@ router.beforeEach(async (to, from) => {
 })
 
 function isLogged() {
-    return localStorage.getItem('isLogged') === 'true'
+    return JSON.parse(localStorage.getItem('user')) != null
 }
 
 export default router

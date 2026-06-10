@@ -1,38 +1,10 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
-import {ref, provide, useTemplateRef, onMounted} from 'vue'
-import Popup from './components/Popup.vue'
+import { onMounted } from 'vue'
+import { useAuth } from './composables/features/auth.js'
+const { logout, isLogged, setUserState } = useAuth()
 const router = useRouter()
 const route = useRoute()
-
-const popup = useTemplateRef("popup")
-provide("popupService", async (info, options, title) => {
-    return await popup.value.wait(info, options, title)
-})
-
-
-
-const isLogged = ref(localStorage.getItem('isLogged') === 'true')
-
-const updateIsLogged = (value) => {
-    isLogged.value = value
-}
-
-const logout = async () => {
-    try {
-        await axios.post('/api/logout')
-    } catch (e) {
-        console.log('an error')
-    }
-    localStorage.setItem("isLogged", "false")
-    isLogged.value = false
-    if (route.name !== 'home') {
-        router.push({
-            name: 'home',
-        })
-    }
-}
-
 onMounted(() => {
     axios.interceptors.response.use(
         response => {
@@ -40,8 +12,7 @@ onMounted(() => {
         },
         error => {
             if (error?.response?.status === 401) {
-                localStorage.setItem("isLogged", "false")
-                updateIsLogged(false)
+                setUserState(false)
                 if (route.name !== 'login') {
                     router.push({
                         name: 'login',
@@ -52,40 +23,31 @@ onMounted(() => {
         }
     );
 })
-
+const submit = async () => {
+    logout()
+    if (route.name !== 'home') {
+        router.push({
+            name: 'home',
+        })
+    }
+}
 </script>
 
 <template>
     <div>
-        <p>SPA app welcome!</p>
-        <div class="space-x-3 bg-sky-50 font-bold">
-            <router-link
-                :to="{ name: 'home' }"
-                active-class="underline"
-                exact-active-class="underline"
-            >Home</router-link>
-
-            <template v-if="isLogged">
-                <router-link
-                    :to="{ name: 'dashboard' }"
-                    active-class="underline"
-                >Dashboard</router-link>
-                <a @click.prevent="logout" href>Logout</a>
-            </template>
-
-            <template v-else>
-                <router-link
-                    :to="{ name: 'register' }"
-                    active-class="underline"
-                >Register</router-link>
-                <router-link
-                    :to="{ name: 'login' }"
-                    active-class="underline"
-                >Login</router-link>
-            </template>
-        </div>
-        <Popup ref="popup" />
-        <router-view @logged-in="updateIsLogged" />
+    <p>SPA app welcome!</p>
+    <div class="space-x-3 bg-sky-50 font-bold">
+        <router-link :to="{ name: 'home' }">Home</router-link>
+        <template v-if="isLogged">
+            <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
+            <a @click.prevent="submit" href>Logout</a>
+        </template>
+        <template v-else>
+            <router-link to="/register">Register</router-link>
+            <router-link :to="{ name: 'login' }">Login</router-link>
+        </template>
+    </div>
+    <router-view />
     </div>
 </template>
 

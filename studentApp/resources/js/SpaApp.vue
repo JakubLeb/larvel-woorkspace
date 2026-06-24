@@ -1,10 +1,19 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, provide, useTemplateRef } from 'vue'
 import { useAuth } from './composables/features/auth.js'
+import Popup from './components/Popup.vue'
+
 const { logout, isLogged, setUserState } = useAuth()
 const router = useRouter()
 const route = useRoute()
+
+const popup = useTemplateRef("popup")
+
+provide("popupService", async (info, options, title) => {
+    return await popup.value.wait(info, options, title)
+})
+
 onMounted(() => {
     axios.interceptors.response.use(
         response => {
@@ -23,6 +32,7 @@ onMounted(() => {
         }
     );
 })
+
 const submit = async () => {
     logout()
     if (route.name !== 'home') {
@@ -35,19 +45,20 @@ const submit = async () => {
 
 <template>
     <div>
-    <p>SPA app welcome!</p>
-    <div class="space-x-3 bg-sky-50 font-bold">
-        <router-link :to="{ name: 'home' }">Home</router-link>
-        <template v-if="isLogged">
-            <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
-            <a @click.prevent="submit" href>Logout</a>
-        </template>
-        <template v-else>
-            <router-link to="/register">Register</router-link>
-            <router-link :to="{ name: 'login' }">Login</router-link>
-        </template>
-    </div>
-    <router-view />
+        <p>SPA app welcome!</p>
+        <div class="space-x-3 bg-sky-50 font-bold">
+            <router-link :to="{ name: 'home' }">Home</router-link>
+            <template v-if="isLogged">
+                <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
+                <a @click.prevent="submit" href>Logout</a>
+            </template>
+            <template v-else>
+                <router-link to="/register">Register</router-link>
+                <router-link :to="{ name: 'login' }">Login</router-link>
+            </template>
+        </div>
+        <router-view />
+        <Popup ref="popup" />
     </div>
 </template>
 

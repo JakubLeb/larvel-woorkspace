@@ -1,4 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuth } from './composables/features/auth.js'
+
+const { isLogged } = useAuth()
+
 const routes = [
     {
         name: "home",
@@ -35,19 +39,15 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from) => {
-    if (to.meta.requiresAuth && !isLogged()) {
+    if (to.meta.requiresAuth && !isLogged.value) {
         return {
             name: 'login',
             query: { redirect: to.fullPath },
         }
     }
-    if (to.meta.guestOnly && isLogged()) {
+    if (to.meta.guestOnly && isLogged.value) {
         return { name: 'dashboard' }
     }
 })
-
-function isLogged() {
-    return JSON.parse(localStorage.getItem('user')) != null
-}
 
 export default router

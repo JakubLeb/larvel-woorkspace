@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Illuminate\Support\Sleep;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentResource;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
+Sleep::sleep(4);
 class StudentController extends Controller
 {
     /**
